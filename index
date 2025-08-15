@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tap Challenge Game by Yishak</title>
+  <style>
+    body {
+      text-align: center;
+      font-family: Arial, sans-serif;
+      background-color: #eaf7ff;
+    }
+    h1 {
+      color: #005f73;
+    }
+    #instructions {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 10px;
+      margin: 10px auto;
+      width: 80%;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #gameArea {
+      position: relative;
+      margin: 20px auto;
+      width: 320px;
+      height: 420px;
+      background-color: #ffffff;
+      border: 2px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      cursor: pointer;
+    }
+    #score, #timer {
+      font-size: 20px;
+      margin: 10px;
+      color: #023047;
+    }
+    #startBtn {
+      padding: 10px 20px;
+      font-size: 18px;
+      cursor: pointer;
+      background-color: #28a745;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+    }
+    footer {
+      margin-top: 20px;
+      font-size: 14px;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>Tap Challenge Game</h1>
+  <div id="instructions">
+    🎯 <b>Instructions:</b> Tap at least <b>4 different colored circles</b> within 30 seconds to win. <br>
+    ✅ Win: Pay 20 Birr. <br>
+    ❌ Lose: Pay 30 Birr. <br>
+    Tap as fast as you can — Good luck!
+  </div>
+  <div id="score">Score: 0</div>
+  <div id="timer">Time: 30</div>
+  <button id="startBtn">Start Game</button>
+  <div id="gameArea"></div>
+
+  <footer>Game by Yishak Gugsa</footer>
+
+  <script>
+    let score = 0;
+    let timeLeft = 30;
+    let gameInterval;
+    let timerInterval;
+    let colorsTapped = new Set();
+
+    const scoreDisplay = document.getElementById('score');
+    const timerDisplay = document.getElementById('timer');
+    const gameArea = document.getElementById('gameArea');
+    const startBtn = document.getElementById('startBtn');
+
+    function startGame() {
+      score = 0;
+      colorsTapped.clear();
+      timeLeft = 30;
+      scoreDisplay.textContent = `Score: ${score}`;
+      timerDisplay.textContent = `Time: ${timeLeft}`;
+      startBtn.disabled = true;
+
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerDisplay.textContent = `Time: ${timeLeft}`;
+        if (timeLeft <= 0) {
+          endGame();
+        }
+      }, 1000);
+
+      gameInterval = setInterval(() => {
+        spawnCircle();
+      }, 1000); // Slower speed for playability
+    }
+
+    function spawnCircle() {
+      const circle = document.createElement('div');
+      circle.classList.add('circle');
+      const color = getRandomColor();
+      circle.style.backgroundColor = color;
+      circle.style.top = Math.random() * (gameArea.clientHeight - 50) + 'px';
+      circle.style.left = Math.random() * (gameArea.clientWidth - 50) + 'px';
+
+      circle.onclick = function () {
+        score++;
+        colorsTapped.add(color);
+        scoreDisplay.textContent = `Score: ${score}`;
+        gameArea.removeChild(circle);
+      };
+
+      gameArea.appendChild(circle);
+
+      setTimeout(() => {
+        if (gameArea.contains(circle)) {
+          gameArea.removeChild(circle);
+        }
+      }, 800);
+    }
+
+    function getRandomColor() {
+      const colors = ['red', 'blue', 'green', 'orange', 'purple', 'pink'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    function endGame() {
+      clearInterval(gameInterval);
+      clearInterval(timerInterval);
+      startBtn.disabled = false;
+      alert(`Game Over! Your score is ${score} and you tapped ${colorsTapped.size} unique colors.`);
+      if (colorsTapped.size >= 4) {
+        alert('You Win! Pay 20 Birr.');
+      } else {
+        alert('You Lose! Pay 30 Birr.');
+      }
+    }
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>
